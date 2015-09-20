@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="en">
+<head>
+  <title>OpenPGP 4 Fingerprint Handler</title>
+  <script type="text/javascript">
+    var proto = "openpgp4fpr";
+    var httpurl = "https://openpgp4.info/http/%s";
+    var tlsurl = "https://openpgp4.info/tls/%s";
+  </script>
+  <style>
+	td, th { padding: 0 5pt 0 5pt; }
+  </style>
+</head>
+<body>
+  <h1>OpenPGP 4 Fingerprint Handler</h1>
+  <p>This site is a simple proxy designed to allow your browser to handle the
+     <code>openpgp4fpr:</code> URI scheme.</p>
+  <p>We offer two handlers, which will look up keys over HTTP or HTTPS. The
+     HTTP handler will use the <a href="https://sks-keyservers.net/">SKS
+     Keyserver</a> pool, which validates member configurations. The HTTPS
+     handler will use the <a href="https://pgp.mit.edu">MIT PGP keyserver</a>,
+     which is known good and operates over TLS.</p>
+  <table>
+    <tr>
+      <th>Handler</th>
+      <th>Protocol</th>
+      <th>Keyserver</th>
+      <th>URI resolution</th>
+      <th>Proxy resolution</th>
+    </tr>
+    <tr>
+      <td><input type="button" value="Install"
+                 onclick='navigator.registerProtocolHandler(proto, httpurl,
+                          "SKS Keyserver Lookup")' /></td>
+      <td>HTTP</td>
+      <td>SKS Pool</td>
+      <td><code>https://openpgp4.info/http/openpgp4fpr:&lt;FPR&gt;</code></td>
+      <td><code>http://pool.sks-keyservers.net:11371/pks/lookup?op=vindex&amp;search=0x&lt;FPR&gt;</code>
+      </td>
+    </tr>
+    <tr>
+      <td><input type="button" value="Install"
+                 onclick='navigator.registerProtocolHandler(proto, tlsurl,
+                          "MIT (HTTPS) Keyserver Lookup")' /></td>
+      <td>HTTPS</td>
+      <td>MIT</td>
+      <td><code>https://openpgp4.info/tls/openpgp4fpr:&lt;FPR&gt;</code></td>
+      <td><code>https://pgp.mit.edu/pks/lookup?search=0x&lt;FPR&gt;</code></td>
+    </tr>
+  </table>
+  <p>Test on
+     <a href="openpgp4fpr:0EE5BE979282D80B9F7540F1CCD2ED94D21739E9">DKG</a>'s
+     fingerprint.</p>
+
+  <h2>Implementation</h2>
+  <p>This service is implemented in two lines of
+     <a href="http://nginx.com/">Nginx</a> configuration:</p>
+  <textarea rows=6 cols=128 readonly wrap='off'>server {
+	[...]
+	rewrite ^/http/openpgp4fpr:((\w\w\w\w)+)$ http://pool.sks-keyservers.net:11371/pks/lookup?op=vindex&search=0x$1 permanent;
+	rewrite ^/tls/openpgp4fpr:((\w\w\w\w)+)$ https://pgp.mit.edu/pks/lookup?search=0x$1 permanent;
+	[...]
+}</textarea>
+  <h3>Logging</h3>
+  <p>This web server does not log visits.</p>
+
+  <h2>About <tt>openpgp4fpr</tt></h2>
+  <p>In 2010, the <a href="http://web.monkeysphere.info/">Monkeysphere</a>
+     project
+     <a href="http://permalink.gmane.org/gmane.comp.security.monkeysphere/592"
+        >introduced</a> the <code>openpgp4fpr:&lt;FINGERPRINT&gt;</code> scheme
+     for sharing OpenPGP key fingerprints, where
+     <code>&lt;FINGERPRINT&gt;</code> is the full 40 hex character fingerprint
+     of a primary key, and has since been adopted in vCards for sharing public
+     keys.</p>
+
+  <p>Perhaps more significantly, several Android applications
+     (<a href="https://play.google.com/store/apps/details?id=org.thialfihar.android.apg"
+         >APG</a>/<a
+         href="https://play.google.com/store/apps/details?id=org.sufficientlysecure.keychain"
+         >OpenKeychain</a>, and the Guardian Project's
+     <a href="https://play.google.com/store/apps/details?id=info.guardianproject.gpg"
+         >GnuPG port</a>) now accept this scheme as a means of quickly
+     exchanging public keys via QR codes. The Android &quot;intents&quot;
+     interface paves the way for <code>openpgp4fpr</code> URIs to become
+     increasingly common. The purpose of this site is to provide a
+     proof-of-concept that demonstrates their applicability outside the realm
+     of Android applications.</p>
+
+  <p>In early 2015, the <a href="https://html.spec.whatwg.org/multipage/"
+        title="If you're wondering what cipher to enable: rsa_rc4_128_sha."
+        >WHATWG</a> <a href="https://html5.org/r/8872">accepted</a>
+     <code>openpgp4fpr:</code> as a
+     <a href="https://html.spec.whatwg.org/multipage/webappapis.html#whitelisted-scheme"
+        >whitelisted scheme</a>.</p>
+
+  <h2>Browser Support</h2>
+  <p><a href="https://www.mozilla.org/en-US/firefox/new/">Firefox</a>/<a
+        href="https://www.mozilla.org/en-US/firefox/new/">Iceweasel</a> allow for
+     the registration of web-based protocol handlers without restriction.</p>
+  <p><a href="https://www.google.com/chrome/">Google Chrome</a>/<a
+        href="http://www.chromium.org/Home">Chromium</a> follow WHATWG
+     recommendations. Chromium has <a
+        href="https://src.chromium.org/viewvc/blink?view=revision&revision=189135"
+        >included</a> <code>openpgp4fpr:</code> in its whitelist, which entered
+     production as of Chromium 44.</p>
+
+  <h2>External Links</h2>
+  <ul>
+      <li><a href="https://www.av8n.com/computer/htm/distributing-keys.htm"
+             title="Self-signed; SHA-256 fingerprint:
+                    2C:24:F1:AD:15:80:B6:2C:4E:90:7D:EE:7B:71:21:8C:
+                    A7:C7:76:3A:DC:62:58:D8:BA:4D:71:53:72:26:B3:ED"
+             >Distributing PGP Keys and Fingerprints</a></li>
+      <li><a href="http://lists.gnupg.org/pipermail/gnupg-users/2013-December/048635.html"
+             title="Posting mid-thread for relevance">Printing PGP
+          Businesscard</a></li>
+      <li><a href="https://pgp-tools.alioth.debian.org/">PGP Tools</a></li>
+  </ul>
+  <h2>Donate</h2>
+  <p>If you are so inclined, you may donate bitcoins to
+     <a href="bitcoin:1EiWCrKkjspVcLFgAkevd3yEh6xfqfymAx"
+         >1EiWCrKkjspVcLFgAkevd3yEh6xfqfymAx</a></p>
+</body>
+</html>
+

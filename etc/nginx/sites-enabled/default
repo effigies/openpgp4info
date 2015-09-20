@@ -1,0 +1,17 @@
+server {
+    include /etc/nginx/ssl_params;
+    ssl_certificate /etc/ssl/certs/openpgp4.info.pem;
+    ssl_certificate_key /etc/ssl/private/openpgp4.info.key;
+
+    server_name openpgp4fpr.info;
+    root /var/www;
+    index index.html;
+
+    include /etc/nginx/security_params;
+
+    rewrite ^/http/openpgp4fpr:((\w\w\w\w)+)$ http://pool.sks-keyservers.net:11371/pks/lookup?op=vindex&search=0x$1 permanent;
+    rewrite ^/tls/openpgp4fpr:((\w\w\w\w)+)$ https://pgp.mit.edu/pks/lookup?search=0x$1 permanent;
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}

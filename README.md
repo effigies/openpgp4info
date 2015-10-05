@@ -17,6 +17,8 @@ might have acquired, means I actually have no idea whether this sees any use.
 I assume it was minimal, but I want to preserve the configuration needed to
 construct it.
 
+The proxy service was disabled on 5 October 2015.
+
 ## About `openpgp4fpr`
 
 In 2010, the [Monkeysphere](http://web.monkeysphere.info/) project

@@ -9,8 +9,8 @@ server {
 
     include /etc/nginx/security_params;
 
-    rewrite ^/http/openpgp4fpr:((\w\w\w\w)+)$ http://pool.sks-keyservers.net:11371/pks/lookup?op=vindex&search=0x$1 permanent;
-    rewrite ^/tls/openpgp4fpr:((\w\w\w\w)+)$ https://pgp.mit.edu/pks/lookup?search=0x$1 permanent;
+    rewrite ^/http/openpgp4fpr:((\w\w\w\w)+)$ / permanent;
+    rewrite ^/tls/openpgp4fpr:((\w\w\w\w)+)$ / permanent;
     location / {
         try_files $uri $uri/ =404;
     }

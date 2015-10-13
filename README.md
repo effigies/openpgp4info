@@ -17,7 +17,8 @@ might have acquired, means I actually have no idea whether this sees any use.
 I assume it was minimal, but I want to preserve the configuration needed to
 construct it.
 
-The proxy service was disabled on 5 October 2015.
+The proxy service was disabled on 5 October 2015. The site was shut down on
+13 October 2015.
 
 ## About `openpgp4fpr`
 
